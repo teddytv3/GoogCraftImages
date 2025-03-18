@@ -127,12 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Packet.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="logger.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Packet.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="test.cpp" />
