@@ -1,7 +1,5 @@
 #include "logger.h"
-#include <string>
-#include <chrono>
-#include <fstream>
+
 /*
  * @brief This function logs data to a file, specified by either the client or the server for proper debugging. 
  * @param filename This parameter is a string variable that contains the name of the file to write to. This is separated from the log folder to ensure client and server have separate files.
