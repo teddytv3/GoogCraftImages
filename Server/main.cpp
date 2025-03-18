@@ -1,37 +1,40 @@
 #include <iostream>
 #include <Windows.h>
 
-#define PORT 8187
-
-#pragma comment(lib, "Ws2_32.lib")
+#define PORT 8186
 
 int main(int argc, char* argv[]) {
-
-	//starts Winsock DLLs
+	//starts Winsock DLLs		
 	WSADATA wsaData;
-	if ((WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0) {
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 		return 0;
-	}
 
-	//initializes socket. SOCK_STREAM: TCP
-	SOCKET ClientSocket;
-	ClientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (ClientSocket == INVALID_SOCKET) {
+	//create server socket
+	SOCKET ServerSocket;
+	ServerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (ServerSocket == INVALID_SOCKET) {
 		WSACleanup();
 		return 0;
 	}
 
-	//Connect socket to specified server
+	//binds socket to address
 	sockaddr_in SvrAddr;
-	SvrAddr.sin_family = AF_INET;						//Address family type itnernet
-	SvrAddr.sin_port = htons(PORT);					//port (host to network conversion)
-	SvrAddr.sin_addr.s_addr = inet_addr("127.0.0.1");	//IP address
-	if ((connect(ClientSocket, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr))) == SOCKET_ERROR) {
-		closesocket(ClientSocket);
+	SvrAddr.sin_family = AF_INET;
+	SvrAddr.sin_addr.s_addr = INADDR_ANY;
+	SvrAddr.sin_port = htons(PORT);
+	if (bind(ServerSocket, (struct sockaddr*)&SvrAddr, sizeof(SvrAddr)) == SOCKET_ERROR)
+	{
+		closesocket(ServerSocket);
 		WSACleanup();
 		return 0;
 	}
 
+	//listen on a socket
+	if (listen(ServerSocket, 1) == SOCKET_ERROR) {
+		closesocket(ServerSocket);
+		WSACleanup();
+		return 0;
+	}
 
 	return 0;
 }
