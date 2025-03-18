@@ -41,8 +41,7 @@ private:
     uint8_t pktChecksum;
 
 public:
-    Packet(uint8_t id, PktType type, uint16_t seqNum, const PacketData& pktData)
-        : actionID(id), pktType(type), sequenceNum(seqNum), data(pktData);
+    Packet(uint8_t id, PktType type, uint16_t seqNum, const PacketData& pktData);
 
     uint32_t calculateChecksum() const;
 

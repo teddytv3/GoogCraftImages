@@ -5,12 +5,12 @@ Packet::Packet(uint8_t id, PktType type, uint16_t seqNum, const PacketData& pktD
     pktChecksum = calculateChecksum();
 }
 
-Packet::uint32_t calculateChecksum() const {
+uint32_t Packet::calculateChecksum() const {
     return actionID ^ static_cast<uint8_t>(pktType) ^ sequenceNum ^ dataSize;
 }
 
 
-Packet::void displayInfo() const {
+void Packet::displayInfo() const {
     std::cout << "Action ID: " << actionID << "\n"
         << "Packet Type: " << static_cast<int>(pktType) << "\n"
         << "Sequence Number: " << sequenceNum << "\n"
