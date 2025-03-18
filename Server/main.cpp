@@ -1,12 +1,19 @@
 #include <iostream>
 #include <string>
-#include "test.h"
+#include <Socket.h>
+#include <defines.h>
 
 int main(int argc, char* argv[]) {
-	int a = 5;
-	int b = 8;
+	Socket sock;
+	sock.open();
+	sock.serve(PORT);
+	
+	while (true) {
+		Socket client = sock.accept();
 
-	std::cout << a << " + " << b << " = " << testFunction(a, b) << std::endl;
-		
+		// ...
+		// client.send()...
+	}
+
 	return 0;
 }
