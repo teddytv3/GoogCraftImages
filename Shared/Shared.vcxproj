@@ -127,10 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="defines.h" />
+    <ClInclude Include="Socket.h" />
+    <ClInclude Include="test.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="test.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Socket.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="test.cpp" />
   </ItemGroup>

@@ -18,6 +18,9 @@
     <ClInclude Include="test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Socket.h">
+        <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -25,6 +28,9 @@
   <ItemGroup>
     <ClCompile Include="test.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.cpp">
+        <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="logger.cpp">
       <Filter>Source Files</Filter>
