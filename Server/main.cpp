@@ -4,9 +4,15 @@
 #include <defines.h>
 
 int main(int argc, char* argv[]) {
+	WSADATA data;
+	Socket::initialize(&data);
+
 	Socket sock;
 	sock.open();
-	sock.serve(PORT);
+	if (sock.serve(PORT)) {
+		std::cout << "Failed to serve on port" << std::endl;
+		exit(1);
+	}
 	
 	while (true) {
 		printf("Waiting \n");

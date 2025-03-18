@@ -1,6 +1,5 @@
 #include "Socket.h"
-
-#include <WS2tcpip.h>
+#include <iostream>
 
 void Socket::setFail(bool newFail) {
 	this->error = newFail;
@@ -25,8 +24,12 @@ bool Socket::open() {
 	bool res = false;
 
 	this->mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	
+	int errc = WSAGetLastError();
 	res = (this->mainSocket == INVALID_SOCKET);
+
+	if (res == true) {
+		std::cout << "[Socket] Failed to open socket (" << this->mainSocket << ") - " << errc << std::endl;
+	}
 
 	this->setFail(res);
 	return res;
@@ -51,6 +54,7 @@ bool Socket::connect(const unsigned short int port, const char* addr) {
 	if (addr == nullptr) {
 		res = true;
 
+		std::cout << "[Socket] Failed to connect to NULL address" << std::endl;
 		this->setFail(res);
 		return res;
 	}
@@ -64,6 +68,10 @@ bool Socket::connect(const unsigned short int port, const char* addr) {
 
 	// Now attempt to connect
 	res = (SOCKET_ERROR == ::connect(this->mainSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)));
+
+	if (res == true) {
+		std::cout << "[Socket] Failed to connect to address" << std::endl;
+	}
 
 	this->setFail(res);
 	return res;
@@ -84,6 +92,12 @@ bool Socket::serve(const unsigned short int port) {
 	if (false == res) {
 		// Set the socket as a listening socket
 		res = (SOCKET_ERROR == listen(this->mainSocket, 1));
+		if (res == true) {
+			std::cout << "[Socket] Listening failed" << std::endl;
+		}
+	}
+	else {
+		std::cout << "[Socket] Binding failed" << std::endl;
 	}
 
 	this->setFail(res);
