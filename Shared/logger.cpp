@@ -9,6 +9,6 @@ void log(std::string filename, uint8_t successFlag) {
 	std::string logFolder = "../logs/";	//Using a different file name to separate between Client and Server logs. They should still live in the same folder however.
 	std::ofstream file;
 	file.open(logFolder.append(filename), std::ios_base::app);
-	file << std::chrono::system_clock::now() << ":	" << successFlag << std::endl;
+	file << std::chrono::system_clock::now().time_since_epoch().count() << ":	" << successFlag << std::endl;
 	file.close();
 }
