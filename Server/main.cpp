@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
 	sock.serve(PORT);
 	
 	while (true) {
+		printf("Waiting \n");
 		Socket client = sock.accept();
 
 		// ...

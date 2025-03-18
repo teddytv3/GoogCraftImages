@@ -3,6 +3,9 @@
 #include <defines.h>
 
 int main(int argc, char* argv[]) {
+	WSADATA data;
+	Socket::initialize(&data);
+
 	Socket client;
 	client.open();
 

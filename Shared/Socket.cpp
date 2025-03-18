@@ -1,5 +1,7 @@
 #include "Socket.h"
 
+#include <WS2tcpip.h>
+
 void Socket::setFail(bool newFail) {
 	this->error = newFail;
 }
@@ -57,7 +59,8 @@ bool Socket::connect(const unsigned short int port, const char* addr) {
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(port);
-	serverAddr.sin_addr.s_addr = inet_addr(addr);
+	//serverAddr.sin_addr.s_addr = inet_addr(addr);
+	inet_pton(AF_INET, addr, &serverAddr.sin_addr.s_addr);
 
 	// Now attempt to connect
 	res = (SOCKET_ERROR == ::connect(this->mainSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)));
@@ -96,6 +99,7 @@ Socket Socket::accept() {
 
 	// Check if it was an error
 	if (SOCKET_ERROR == client) {
+
 		this->setFail(true);
 		clientSock.setFail(true);
 	}
