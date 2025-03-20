@@ -10,6 +10,8 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+#include "Packet.h"
+
 class Socket {
 private:
 	SOCKET mainSocket;
@@ -52,6 +54,12 @@ public:
 	*  @return			True if in failed state, false otherwise
 	*/
 	bool fail();
+
+	/* @brief Receive a packet from a socket
+	*  @param[out] packet	A reference to an empty packet object that will be populated with the received packet
+	*  @return				The number of bytes that were received, <0 upon error
+	*/
+	int receive(Packet& packet);
 
 	/*
 	*  ---- CLIENT UTILITIES ----

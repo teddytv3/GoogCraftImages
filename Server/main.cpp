@@ -8,9 +8,11 @@ int main(int argc, char* argv[]) {
 	Socket::initialize(&data);
 
 	Socket sock;
-	sock.open();
+	if (sock.open()) {
+		exit(1);
+	}
+
 	if (sock.serve(PORT)) {
-		std::cout << "Failed to serve on port" << std::endl;
 		exit(1);
 	}
 	

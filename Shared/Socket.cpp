@@ -1,5 +1,6 @@
 #include "Socket.h"
 #include <iostream>
+#include "defines.h"
 
 void Socket::setFail(bool newFail) {
 	this->error = newFail;
@@ -45,6 +46,53 @@ void Socket::reset() {
 
 bool Socket::fail() {
 	return this->error;
+}
+
+int Socket::receive(Packet& packet) {
+	// Dummy header to be filled during receive
+	PacketHeader header;
+	int32_t bytesReceived = 0;
+	int32_t res = 0;
+
+	// First read the header
+	res = ::recv(this->mainSocket, ptr_cast(char, &header), sizeof(PacketHeader), 0);
+	if (res < 0) {
+		std::cerr << "Failed to receive packet header in socket" << std::endl;
+		return res;
+	}
+	else {
+		bytesReceived = res;
+	}
+
+	// Allocate temporary buffer for the data
+	const uint32_t REMAINING_DATA_SIZE = header.dataSize + FOOTER_SIZE;
+	char* dataChecksumBuf = new char[ REMAINING_DATA_SIZE ];
+	if (dataChecksumBuf == nullptr) {
+		std::cerr << "Failed to allocate buffer for data when receiving packet in socket" << std::endl;
+		return -1;
+	}
+
+	// Now we can get the amount of data to read. We will then read that much data, plus a checksum 
+	res = ::recv(this->mainSocket, dataChecksumBuf, REMAINING_DATA_SIZE, 0);
+	if (res < 0) {
+		std::cerr << "Failed to receive packet data in socket" << std::endl;
+		delete[] dataChecksumBuf;
+		return res;
+	}
+	else {
+		bytesReceived += res;
+	}
+	 
+	// Now set the packet
+	if (packet.setPacket(header, dataChecksumBuf, REMAINING_DATA_SIZE)) {
+		// An error occurred when setting the packet. Set a negative response 
+		bytesReceived = -1;
+	}
+
+	// Finally, free the data buffer
+	delete[] dataChecksumBuf;
+
+	return bytesReceived;
 }
 
 bool Socket::connect(const unsigned short int port, const char* addr) {
