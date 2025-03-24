@@ -33,12 +33,6 @@ struct PacketHeader {
 };
 #pragma pack(pop)
 
-union PacketData {
-    TelemetryData telemetry;
-    //std::vector<uint8_t> images;
-    //std::string googleEarthPhoto;
-};
-
 class Packet {
 private:
     PacketHeader header;
@@ -52,11 +46,27 @@ public:
     */
     Packet();
 
-    Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, uint8_t* pktData = nullptr);
+    Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, const uint8_t* pktData = nullptr);
 
     /* @brief Destructor. Free the data buffer if it's allocated
     */
     ~Packet();
+
+    // Getters
+    /* @brief Get a constant reference to the packet header object
+    *  @return  A constant reference to the packet header object
+    */
+    PacketHeader const& getPacketHeader() const;
+
+    /* @brief Get a constant pointer to the data buffer
+    *  @return  A constant pointer to the data buffer
+    */
+    const uint8_t* getData() const;
+
+    /* @brief Get a copy of the packet's checksum
+    *  @return  A copy of the packet's checksum
+    */
+    const uint8_t getChecksum() const;
     
     /* @brief Prepare a packet based on data within a buffer
     *  @param[in] newHeader The packet header as a data structure
@@ -71,7 +81,7 @@ public:
     *  @param[in] size      The number of bytes within buffer to copy.
     *  @return              True upon error, false otherwise
     */
-    bool copyData(uint8_t* buffer, uint16_t size);
+    bool copyData(const uint8_t* buffer, uint16_t size);
 
     /* @brief Calculate the checksum on the packet header and dynamically sized data field
     *  @return  The final calculated checksum of the packet

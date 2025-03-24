@@ -14,7 +14,13 @@ bool Socket::initialize(WSADATA* data) {
 }
 
 void Socket::cleanup() {
-	WSACleanup();
+	int cleanupRes = WSACleanup();
+	if (cleanupRes == 0) {
+		log("socket.log", 0, "Cleaned up.");
+	}
+	else {
+		log("socket.log", cleanupRes, "Failed to cleanup socket");
+	}
 }
 
 Socket::Socket() {
@@ -26,10 +32,11 @@ bool Socket::open() {
 	bool res = false;
 
 	this->mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	int errc = WSAGetLastError();
 	res = (this->mainSocket == INVALID_SOCKET);
 
 	if (res == true) {
+		int errc = WSAGetLastError();
+
 		std::cout << "[Socket] Failed to open socket (" << this->mainSocket << ") - " << errc << std::endl;
 	}
 
@@ -37,8 +44,11 @@ bool Socket::open() {
 	return res;
 }
 
-void Socket::close() {
-	closesocket(this->mainSocket);
+bool Socket::close() {
+	int closeRes = closesocket(this->mainSocket);
+	log("socket.log", closeRes, "Attempted to close socket.");
+
+	return (closeRes != 0); // True indicates failure, false indicate success
 }
 
 void Socket::reset() {
@@ -59,69 +69,78 @@ int Socket::receive(Packet& packet) {
 	// First read the header
 	res = ::recv(this->mainSocket, ptr_cast(char, &header), sizeof(PacketHeader), 0);
 	if (res < 0) {
-		std::cerr << "Failed to receive packet header in socket" << std::endl;
-		return res;
+		this->setFail(true);
+		log("socket.log", -1, "Failed to receive packet header over socket");
 	}
 	else {
 		bytesReceived = res;
-	}
 
-	// Allocate temporary buffer for the data
-	const uint32_t REMAINING_DATA_SIZE = header.dataSize + FOOTER_SIZE;
-	char* dataChecksumBuf = new char[ REMAINING_DATA_SIZE ];
-	if (dataChecksumBuf == nullptr) {
-		std::cerr << "Failed to allocate buffer for data when receiving packet in socket" << std::endl;
-		return -1;
-	}
+		// Allocate temporary buffer for the data
+		const uint32_t REMAINING_DATA_SIZE = header.dataSize + FOOTER_SIZE;
+		char* dataChecksumBuf = new char[REMAINING_DATA_SIZE];
+		if (dataChecksumBuf == nullptr) {
+			this->setFail(true);
+			log("socket.log", -2, "Failed to allocate buffer for data when receiving packet in socket");
+		}
+		else {
+			// Now we can get the amount of data to read. We will then read that much data, plus a checksum 
+			res = ::recv(this->mainSocket, dataChecksumBuf, REMAINING_DATA_SIZE, 0);
+			if (res < 0) {
+				this->setFail(true);
+				log("socket.log", -3, "Failed to receive packet data in socket");
+			}
+			else {
+				bytesReceived += res;
+				// Now set the packet
+				if (packet.setPacket(header, dataChecksumBuf, REMAINING_DATA_SIZE)) {
+					this->setFail(true);
+					// An error occurred when setting the packet. Set a negative response 
+					log("socket.log", -4, "Failed to set the packet structure with the header, buffer, and data size");
+					bytesReceived = -1;
 
-	// Now we can get the amount of data to read. We will then read that much data, plus a checksum 
-	res = ::recv(this->mainSocket, dataChecksumBuf, REMAINING_DATA_SIZE, 0);
-	if (res < 0) {
-		std::cerr << "Failed to receive packet data in socket" << std::endl;
-		delete[] dataChecksumBuf;
-		return res;
-	}
-	else {
-		bytesReceived += res;
-	}
-	 
-	// Now set the packet
-	if (packet.setPacket(header, dataChecksumBuf, REMAINING_DATA_SIZE)) {
-		// An error occurred when setting the packet. Set a negative response 
-		bytesReceived = -1;
-	}
+					// I hate going this many layers deep but MISRA insists upon itself
+				}
+			}
 
-	// Finally, free the data buffer
-	delete[] dataChecksumBuf;
+			// Finally, free the data buffer (only if it wasn't nullptr)
+			delete[] dataChecksumBuf;
+		}
+	}
 
 	return bytesReceived;
 }
 
 int Socket::send(Packet const& packet) {
+	int sendResult = -1; // Default to error
+
 	// Allocate a packet to be sent
 	const unsigned int PACKET_SIZE = packet.getPacketSize();
 	char* buffer = new char[PACKET_SIZE];
 
 	if (buffer == nullptr) {
+		this->setFail(true);
 		log("socket.log", -1, "Failed to allocate packet buffer during send");
-		return -1;
 	}
+	else {
 
-	// Serialize the packet into the new buffer
-	packet.serialize(buffer, PACKET_SIZE);
+		// Serialize the packet into the new buffer
+		packet.serialize(buffer, PACKET_SIZE);
 
-	// Send the buffer over the socket
-	int sendResult = ::send(this->mainSocket, buffer, PACKET_SIZE, 0);
+		// Send the buffer over the socket
+		sendResult = ::send(this->mainSocket, buffer, PACKET_SIZE, 0);
 
-	// Free up the packet buffer
-	delete[] buffer;
+		// Free up the packet buffer before we even check if the sent was successful or not
+		// Do this as soon as possible
+		delete[] buffer;
 
-	// Check if an error occurred so we can log it
-	// We still want to return the return value that ::send proves
-	//
-	// An error is determined if the number of bytes sent is not equal to the packet size
-	if (static_cast<long int>(sendResult) != static_cast<long int>(PACKET_SIZE)) {
-		log("socket.log", sendResult, "Failed to send the correct number of bytes");
+		// Check if an error occurred so we can log it
+		// We still want to return the return value that ::send proves
+		//
+		// An error is determined if the number of bytes sent is not equal to the packet size
+		if (static_cast<long int>(sendResult) != static_cast<long int>(PACKET_SIZE)) {
+			log("socket.log", sendResult, "Failed to send the correct number of bytes");
+			this->setFail(true);
+		}
 	}
 
 	return sendResult;
@@ -173,11 +192,11 @@ bool Socket::serve(const unsigned short int port) {
 		// Set the socket as a listening socket
 		res = (SOCKET_ERROR == listen(this->mainSocket, 1));
 		if (res == true) {
-			std::cout << "[Socket] Listening failed" << std::endl;
+			log("socket.log", -1, "Socket failed to listen");
 		}
 	}
 	else {
-		std::cout << "[Socket] Binding failed" << std::endl;
+		log("socket.log", -1, "Socket failed to bind");
 	}
 
 	this->setFail(res);
@@ -193,7 +212,7 @@ Socket Socket::accept() {
 
 	// Check if it was an error
 	if (SOCKET_ERROR == client) {
-
+		log("socket.log", -1, "Socket failed to accept");
 		this->setFail(true);
 		clientSock.setFail(true);
 	}

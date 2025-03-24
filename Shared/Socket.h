@@ -43,8 +43,9 @@ public:
 	bool open();
 
 	/* @brief Close the socket
+	*  @return	True upon error. False otherwise
 	*/
-	void close();
+	bool close();
 
 	/* @brief Reset all variables to 0.
 	*/

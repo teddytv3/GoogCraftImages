@@ -8,7 +8,7 @@ Packet::Packet() {
     ::memset(this, 0, sizeof(Packet));
 }
 
-Packet::Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, uint8_t* pktData) {
+Packet::Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, const uint8_t* pktData) {
     this->header.actionID = id;
     this->header.pktType = type;
     this->header.sequenceNum = seqNum;
@@ -27,10 +27,31 @@ Packet::~Packet() {
     }
 }
 
+/* @brief Get a constant reference to the packet header object
+*  @return  A constant reference to the packet header object
+*/
+PacketHeader const& Packet::getPacketHeader() const {
+    return this->header;
+}
+
+/* @brief Get a constant pointer to the data buffer
+*  @return  A constant pointer to the data buffer
+*/
+const uint8_t* Packet::getData() const {
+    return this->data;
+}
+
+/* @brief Get a copy of the packet's checksum
+*  @return  A copy of the packet's checksum
+*/
+const uint8_t Packet::getChecksum() const {
+    return this->pktChecksum;
+}
+
 bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size) {
     // Check for input errors
     if (buffer == nullptr || size < MIN_PACKET_SIZE) {
-        std::cerr << "Could not set packet using NULL buffer or low packet size" << std::endl;
+        log("packet.log", -1, "setPacket received null buffer or low packet size");
         return true;
     }
 
@@ -43,6 +64,7 @@ bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int
 
     // If not enough bytes were received... return true for error
     if (DATA_BYTES_FOUND < this->header.dataSize) {
+        log("packet.log", -2, "Could not set packet using buffer. Not enough data bytes provided.");
         std::cerr << "Could not set packet using buffer. Not enough data bytes provided. Expected " << this->header.dataSize << " bytes but found " << DATA_BYTES_FOUND << std::endl;
         return true;
     }
@@ -62,7 +84,7 @@ bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int
     return false;
 }
 
-bool Packet::copyData(uint8_t* buffer, uint16_t size) {
+bool Packet::copyData(const uint8_t* buffer, uint16_t size) {
     // Ensure that the buffer exists
     if (buffer == nullptr) {
         std::cerr << "Could not copy packet data. Buffer was null." << std::endl;
@@ -133,7 +155,7 @@ bool Packet::serialize(char* buffer, const unsigned int size) const {
     buffer += sizeof(this->header);
 
     // Now copy the data field
-    ::memcpy(buffer, &this->data, this->header.dataSize);
+    ::memcpy(buffer, this->data, this->header.dataSize);
     buffer += this->header.dataSize;
 
     // Finally, append the checksum

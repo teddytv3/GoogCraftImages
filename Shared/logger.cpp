@@ -13,7 +13,7 @@
  */
 void log(std::string filename, uint8_t successFlag, std::string msg) {
 	std::ostringstream stream;
-	stream << std::chrono::system_clock::now().time_since_epoch().count() << ":	" << successFlag << " '" << msg << "'";
+	stream << std::chrono::system_clock::now().time_since_epoch().count() << ":	" << static_cast<int32_t>(successFlag) << " '" << msg << "'";
 
 	// Get the %AppData% path
 	std::string path = getRootPath() + LOGS_DIR;
@@ -31,5 +31,5 @@ void log(std::string filename, uint8_t successFlag, std::string msg) {
 	file.close();
 
 	// Echo to stdout
-	std::cout << stream.str() << std::endl;
+	std::cout << filename << "-" << stream.str() << std::endl;
 }
