@@ -2,7 +2,7 @@
 
 // Winsock headers
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
+#define _WIN32_WINNT 0x0600 //-V2573
 #endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -60,6 +60,12 @@ public:
 	*  @return				The number of bytes that were received, <0 upon error
 	*/
 	int receive(Packet& packet);
+
+	/* @brief Send a packet over a connected socket
+	*  @param[in] packet	A reference to a populated packet that will be sent
+	*  @return				The number of bytes that were sent. <0 upon error
+	*/
+	int send(Packet const& packet);
 
 	/*
 	*  ---- CLIENT UTILITIES ----

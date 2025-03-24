@@ -24,19 +24,20 @@ struct TelemetryData {
     double fuel;
 };
 
+#pragma pack(push, 1)
 struct PacketHeader {
     ActionType actionID;
     PktType pktType;
     uint16_t sequenceNum;
     uint16_t dataSize;
 };
+#pragma pack(pop)
 
 union PacketData {
     TelemetryData telemetry;
     //std::vector<uint8_t> images;
     //std::string googleEarthPhoto;
 };
-
 
 class Packet {
 private:
@@ -79,4 +80,17 @@ public:
 
 
     void displayInfo() const;
+
+    /* @brief Get the size of the full packet
+    *  @return	The size of the packet in bytes. Returns at least MIN_PACKET_SIZE
+    */
+    unsigned int getPacketSize() const;
+
+    /* @brief Serialize the packet into a buffer
+    *  @param[out] buffer   A pointer to the buffer that will be populated with the packet
+    *  @param[in] size      A value representing the number of bytes allocated and available within the buffer.
+    *  @return  True upon failure. False otherwise
+    */
+    bool serialize(char* buffer, const unsigned int size) const;
+
 };

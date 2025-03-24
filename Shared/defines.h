@@ -11,3 +11,8 @@
 #define FOOTER_SIZE		(1)
 #define MAX_PACKET_SIZE (HEADER_SIZE + MAX_DATA_SIZE + FOOTER_SIZE)
 #define MIN_PACKET_SIZE (HEADER_SIZE + FOOTER_SIZE)
+
+// Application Directories
+#define ROOT_DIR	"GoogCraftImages/"
+#define LOGS_DIR	"logs/"
+#define FILES_DIR	"files/"

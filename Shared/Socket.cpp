@@ -1,6 +1,7 @@
 #include "Socket.h"
 #include <iostream>
 #include "defines.h"
+#include "logger.h"
 
 void Socket::setFail(bool newFail) {
 	this->error = newFail;
@@ -48,6 +49,7 @@ bool Socket::fail() {
 	return this->error;
 }
 
+
 int Socket::receive(Packet& packet) {
 	// Dummy header to be filled during receive
 	PacketHeader header;
@@ -93,6 +95,36 @@ int Socket::receive(Packet& packet) {
 	delete[] dataChecksumBuf;
 
 	return bytesReceived;
+}
+
+int Socket::send(Packet const& packet) {
+	// Allocate a packet to be sent
+	const unsigned int PACKET_SIZE = packet.getPacketSize();
+	char* buffer = new char[PACKET_SIZE];
+
+	if (buffer == nullptr) {
+		log("socket.log", -1, "Failed to allocate packet buffer during send");
+		return -1;
+	}
+
+	// Serialize the packet into the new buffer
+	packet.serialize(buffer, PACKET_SIZE);
+
+	// Send the buffer over the socket
+	int sendResult = ::send(this->mainSocket, buffer, PACKET_SIZE, 0);
+
+	// Free up the packet buffer
+	delete[] buffer;
+
+	// Check if an error occurred so we can log it
+	// We still want to return the return value that ::send proves
+	//
+	// An error is determined if the number of bytes sent is not equal to the packet size
+	if (static_cast<long int>(sendResult) != static_cast<long int>(PACKET_SIZE)) {
+		log("socket.log", sendResult, "Failed to send the correct number of bytes");
+	}
+
+	return sendResult;
 }
 
 bool Socket::connect(const unsigned short int port, const char* addr) {

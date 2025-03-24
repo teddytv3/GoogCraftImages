@@ -2,6 +2,7 @@
 #include <string>
 #include <Socket.h>
 #include <defines.h>
+#include "logger.h"
 
 int main(int argc, char* argv[]) {
 	WSADATA data;
@@ -16,13 +17,20 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 	
+	// Client Accept Loop
 	while (true) {
-		printf("Waiting \n");
+		log("server.log", 0, "Waiting...");
 		Socket client = sock.accept();
 
+		// Command accept loop
+		while (true) {
+			Packet gotPacket;
+			client.receive(gotPacket);
+		}
 		// ...
-		// client.send()...
+		//client.send()...
 	}
 
+	Socket::cleanup();
 	return 0;
 }

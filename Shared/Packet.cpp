@@ -1,6 +1,7 @@
 #include "Packet.h"
 #include <iostream>
 #include "defines.h"
+#include "logger.h"
 
 Packet::Packet() {
     // Nullify all fields
@@ -115,4 +116,28 @@ void Packet::displayInfo() const {
         << "Sequence Number: " << this->header.sequenceNum << "\n"
         << "Data Size: " << this->header.dataSize << "\n"
         << "Checksum: " << this->pktChecksum << "\n";
+}
+
+unsigned int Packet::getPacketSize() const {
+    return MIN_PACKET_SIZE + this->header.dataSize;
+}
+
+bool Packet::serialize(char* buffer, const unsigned int size) const {
+    if (nullptr == buffer) {
+        log("packet.log", 1, "Failed to serialize packet");
+        return true;
+    }
+
+    // First, copy the header and increase the iterator
+    ::memcpy(buffer, &this->header, sizeof(this->header));
+    buffer += sizeof(this->header);
+
+    // Now copy the data field
+    ::memcpy(buffer, &this->data, this->header.dataSize);
+    buffer += this->header.dataSize;
+
+    // Finally, append the checksum
+    ::memcpy(buffer, &this->pktChecksum, sizeof(this->pktChecksum));
+
+    return false;
 }
