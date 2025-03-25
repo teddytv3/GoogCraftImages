@@ -4,6 +4,8 @@
 #include <defines.h>
 #include "logger.h"
 
+using namespace Shared;
+
 // Server Main
 int main(int argc, char* argv[]) {
 	WSADATA data;
@@ -77,7 +79,6 @@ int main(int argc, char* argv[]) {
 
 			// Now send the packet back to the client
 			log("server.log", client.send(gotPacket), "Sent response packet back to client.");
-
 		}
 	}
 

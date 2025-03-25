@@ -132,7 +132,6 @@
     <ClInclude Include="Packet.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="Socket.h" />
-    <ClInclude Include="test.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="utility.h" />
   </ItemGroup>
@@ -140,7 +139,6 @@
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="Socket.cpp" />
     <ClCompile Include="logger.cpp" />
-    <ClCompile Include="test.cpp" />
     <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

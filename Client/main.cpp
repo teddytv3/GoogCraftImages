@@ -3,6 +3,7 @@
 #include <defines.h>
 #include "logger.h"
 
+using namespace Shared;
 
 // Client Main
 int main(int argc, char* argv[]) {
@@ -17,7 +18,7 @@ int main(int argc, char* argv[]) {
 
 	// Prepare a transmission to begin uploading a file
 	std::string filename = "file1_test.txt";
-	Packet packet(ActionType::ACT_UPLOAD, PktType::ACTION, 0, filename.length(), cptr_cast(uint8_t, filename.c_str()));
+	Packet packet(ActionType::ACT_UPLOAD, PktType::ACTION, 0, filename.length(), filename.c_str());
 
 	// Send the packet to the client
 	int bytes = client.send(packet);
