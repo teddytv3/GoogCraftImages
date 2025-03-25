@@ -7,4 +7,9 @@ namespace Shared {
 	*/
 	extern std::string getRootPath();
 
+	/* @brief Get the current working directory
+	*  @return	A string representing the full path of the current working directory
+	*/
+	extern std::string getCurrentPath();
+
 }

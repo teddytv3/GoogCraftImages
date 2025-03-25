@@ -2,6 +2,7 @@
 #include <Socket.h>
 #include <defines.h>
 #include "logger.h"
+#include "ClientUI.h"
 
 using namespace Shared;
 
@@ -15,6 +16,8 @@ int main(int argc, char* argv[]) {
 
 	bool connectRes = client.connect(PORT, "127.0.0.1");
 	log("client.log", connectRes, "Attempted to connect to client.");
+
+	UI::doClientUILoop(client);
 
 	// Prepare a transmission to begin uploading a file
 	std::string filename = "file1_test.txt";
