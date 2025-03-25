@@ -76,6 +76,11 @@ public:
     */
     bool setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size);
 
+    /* @brief Turn a command packet into a response packet
+    *  @param[in] The packet type to send in response
+    */
+    void makeTelemetry(PktType response);
+
     /* @brief Copy a pointer to some data into this packet. Sets the data size, copies data, then calculates checksum.
     *  @param[in] buffer    The source data buffer to copy.
     *  @param[in] size      The number of bytes within buffer to copy.

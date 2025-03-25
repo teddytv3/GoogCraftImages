@@ -48,9 +48,12 @@ const uint8_t Packet::getChecksum() const {
     return this->pktChecksum;
 }
 
+
+
 bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size) {
     // Check for input errors
-    if (buffer == nullptr || size < MIN_PACKET_SIZE) {
+    // Since buffer is the data + checksum, the minimum value for 'size' is FOOTER_SIZE
+    if (buffer == nullptr || size < FOOTER_SIZE) {
         log("packet.log", -1, "setPacket received null buffer or low packet size");
         return true;
     }
@@ -60,7 +63,7 @@ bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int
     this->header = newHeader;
 
     // CHeck to make sure there's enough bytes in the buffer for 'dataSize'
-    const uint32_t DATA_BYTES_FOUND = size - HEADER_SIZE - FOOTER_SIZE;
+    const uint32_t DATA_BYTES_FOUND = size - FOOTER_SIZE;
 
     // If not enough bytes were received... return true for error
     if (DATA_BYTES_FOUND < this->header.dataSize) {
@@ -82,6 +85,22 @@ bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int
 
     // Done - success if made it here
     return false;
+}
+
+void Packet::makeTelemetry(PktType response) {
+    // Free the data within the packet
+    if (this->data != nullptr) {
+        delete[] this->data;
+        this->data = nullptr;
+    }
+    
+    // Set the header variables
+    this->header.dataSize = 0;
+    this->header.pktType = response;
+    this->header.sequenceNum = 0;
+
+    // Update the checksum
+    this->pktChecksum = this->calculateChecksum();
 }
 
 bool Packet::copyData(const uint8_t* buffer, uint16_t size) {
@@ -110,10 +129,10 @@ bool Packet::copyData(const uint8_t* buffer, uint16_t size) {
 
         // Set the size within the header
         this->header.dataSize = size;
-
-        // Calculate the checksum
-        this->pktChecksum = this->calculateChecksum();
     }
+
+    // Calculate the checksum
+    this->pktChecksum = this->calculateChecksum();
 
     // No err
     return false;
@@ -123,9 +142,11 @@ uint8_t Packet::calculateChecksum() const {
     // Calculate the checksum on the header to begin
     uint8_t checksum = this->header.actionID ^ static_cast<uint8_t>(this->header.pktType) ^ this->header.sequenceNum ^ this->header.dataSize;
 
-    // Calculate the checksum on the data 
-    for (uint16_t i = 0; i < this->header.dataSize; i++) {
-        checksum ^= this->data[i];
+    if (this->data != nullptr) {
+        // Calculate the checksum on the data 
+        for (uint16_t i = 0; i < this->header.dataSize; i++) {
+            checksum ^= this->data[i];
+        }
     }
 
     return checksum;
