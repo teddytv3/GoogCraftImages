@@ -35,20 +35,24 @@ namespace Server {
 			std::cout << "*                         *" << std::endl;
 			std::cout << "***************************" << std::endl;
 
-			int input;
+			char input;
 
 			std::cin >> input;
 
 			switch (input) {
-			case 1:
-				DisplayLogFiles();
-				break;
-			case 2:
-				DisplayReceivedFiles();
-				break;
-			default:
-				std::cout << "Bad Input" << std::endl;
-				break;
+				case '1':
+					DisplayLogFiles();
+					break;
+				case '2':
+					DisplayReceivedFiles();
+					break;
+				default: {
+					std::cout << "Bad Input " << std::endl;
+
+					
+					break;
+				}
+				
 			}
 		}
 	}
