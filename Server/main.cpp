@@ -2,11 +2,13 @@
 #include <string>
 #include <Socket.h>
 #include <defines.h>
+#include <thread>
 #include "logger.h"
-
+#include "server_interface.h"
 #include "states.h"
 
 using namespace Shared;
+using namespace Server;
 
 // Server Main
 int main(int argc, char* argv[]) {
@@ -26,17 +28,17 @@ int main(int argc, char* argv[]) {
 
 	// State - The state of the server
 	// Start in the LISTENING state
-	Server::State state = Server::State::LISTENING;
-	
+	State state = State::LISTENING;
+	std::thread t1 = std::thread(DisplayOptions);
 	// Client Accept Loop
-	while (state != Server::State::OFF) {
-		state = Server::State::LISTENING;
+	while (state != State::OFF) {
+		state = State::LISTENING;
 		log("server.log", 0, "Transitioned to the LISTENING state...");
 		Socket client = sock.accept();
 		log("server.log", 0, "Client accepted!");
 
 		// Transition to the IDLE state if we are not currently in the IDLE state
-		state = Server::State::IDLE;
+		state = State::IDLE;
 		log("server.log", 0, "Transitioned to the IDLE state...");
 
 		// Command accept loop
@@ -70,7 +72,7 @@ int main(int argc, char* argv[]) {
 					log("server.log", 0, "Download action received");
 					pktResponse = PktType::ACK;
 
-					state = Server::State::STREAMING;
+					state = State::STREAMING;
 					log("server.log", 0, "Transitioned to the STREAMING state.");
 
 					// ... Download logic
@@ -86,7 +88,7 @@ int main(int argc, char* argv[]) {
 					log("server.log", 0, "Upload action received");
 					pktResponse = PktType::ACK;
 
-					state = Server::State::READING;
+					state = State::READING;
 					log("server.log", 0, "Transitioned to the READING state.");
 
 					// ... Upload logic
@@ -108,5 +110,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	Socket::cleanup();
+	t1.join();
 	return 0;
 }
