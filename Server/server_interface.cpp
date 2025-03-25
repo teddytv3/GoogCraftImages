@@ -6,24 +6,25 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
-using namespace Shared;
 
 namespace Server {
 	void DisplayReceivedFiles() {
 
-		std::string path = getRootPath();
+		std::string path = Shared::getRootPath();
 		path += FILES_DIR;
 
-		for (const auto& entry : fs::directory_iterator(path))
+		for (const auto& entry : fs::directory_iterator(path)) {
 			std::cout << entry.path() << std::endl;
+		}		
 	}
 
 	void DisplayLogFiles() {
-		std::string path = getRootPath();
+		std::string path = Shared::getRootPath();
 		path += LOGS_DIR;
 
-		for (const auto& entry : fs::directory_iterator(path))
+		for (const auto& entry : fs::directory_iterator(path)) {
 			std::cout << entry.path() << std::endl;
+		}		
 	}
 
 	void DisplayOptions() {
@@ -48,8 +49,6 @@ namespace Server {
 					break;
 				default: {
 					std::cout << "Bad Input " << std::endl;
-
-					
 					break;
 				}
 				
