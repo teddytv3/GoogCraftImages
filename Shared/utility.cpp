@@ -30,4 +30,8 @@ namespace Shared {
 		// Return the final path string
 		return path.generic_string() + "/" + ROOT_DIR;
 	}
+
+	std::string getCurrentPath() {
+		return std::filesystem::current_path().generic_string();
+	}
 }
