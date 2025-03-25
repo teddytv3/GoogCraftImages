@@ -1,13 +1,14 @@
 #include "Packet.h"
 #include <iostream>
 #include "defines.h"
+#include "logger.h"
 
 Packet::Packet() {
     // Nullify all fields
     ::memset(this, 0, sizeof(Packet));
 }
 
-Packet::Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, uint8_t* pktData) {
+Packet::Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, const uint8_t* pktData) {
     this->header.actionID = id;
     this->header.pktType = type;
     this->header.sequenceNum = seqNum;
@@ -26,10 +27,34 @@ Packet::~Packet() {
     }
 }
 
+/* @brief Get a constant reference to the packet header object
+*  @return  A constant reference to the packet header object
+*/
+PacketHeader const& Packet::getPacketHeader() const {
+    return this->header;
+}
+
+/* @brief Get a constant pointer to the data buffer
+*  @return  A constant pointer to the data buffer
+*/
+const uint8_t* Packet::getData() const {
+    return this->data;
+}
+
+/* @brief Get a copy of the packet's checksum
+*  @return  A copy of the packet's checksum
+*/
+const uint8_t Packet::getChecksum() const {
+    return this->pktChecksum;
+}
+
+
+
 bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size) {
     // Check for input errors
-    if (buffer == nullptr || size < MIN_PACKET_SIZE) {
-        std::cerr << "Could not set packet using NULL buffer or low packet size" << std::endl;
+    // Since buffer is the data + checksum, the minimum value for 'size' is FOOTER_SIZE
+    if (buffer == nullptr || size < FOOTER_SIZE) {
+        log("packet.log", -1, "setPacket received null buffer or low packet size");
         return true;
     }
 
@@ -38,10 +63,11 @@ bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int
     this->header = newHeader;
 
     // CHeck to make sure there's enough bytes in the buffer for 'dataSize'
-    const uint32_t DATA_BYTES_FOUND = size - HEADER_SIZE - FOOTER_SIZE;
+    const uint32_t DATA_BYTES_FOUND = size - FOOTER_SIZE;
 
     // If not enough bytes were received... return true for error
     if (DATA_BYTES_FOUND < this->header.dataSize) {
+        log("packet.log", -2, "Could not set packet using buffer. Not enough data bytes provided.");
         std::cerr << "Could not set packet using buffer. Not enough data bytes provided. Expected " << this->header.dataSize << " bytes but found " << DATA_BYTES_FOUND << std::endl;
         return true;
     }
@@ -61,7 +87,23 @@ bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int
     return false;
 }
 
-bool Packet::copyData(uint8_t* buffer, uint16_t size) {
+void Packet::makeTelemetry(PktType response) {
+    // Free the data within the packet
+    if (this->data != nullptr) {
+        delete[] this->data;
+        this->data = nullptr;
+    }
+    
+    // Set the header variables
+    this->header.dataSize = 0;
+    this->header.pktType = response;
+    this->header.sequenceNum = 0;
+
+    // Update the checksum
+    this->pktChecksum = this->calculateChecksum();
+}
+
+bool Packet::copyData(const uint8_t* buffer, uint16_t size) {
     // Ensure that the buffer exists
     if (buffer == nullptr) {
         std::cerr << "Could not copy packet data. Buffer was null." << std::endl;
@@ -87,10 +129,10 @@ bool Packet::copyData(uint8_t* buffer, uint16_t size) {
 
         // Set the size within the header
         this->header.dataSize = size;
-
-        // Calculate the checksum
-        this->pktChecksum = this->calculateChecksum();
     }
+
+    // Calculate the checksum
+    this->pktChecksum = this->calculateChecksum();
 
     // No err
     return false;
@@ -100,9 +142,11 @@ uint8_t Packet::calculateChecksum() const {
     // Calculate the checksum on the header to begin
     uint8_t checksum = this->header.actionID ^ static_cast<uint8_t>(this->header.pktType) ^ this->header.sequenceNum ^ this->header.dataSize;
 
-    // Calculate the checksum on the data 
-    for (uint16_t i = 0; i < this->header.dataSize; i++) {
-        checksum ^= this->data[i];
+    if (this->data != nullptr) {
+        // Calculate the checksum on the data 
+        for (uint16_t i = 0; i < this->header.dataSize; i++) {
+            checksum ^= this->data[i];
+        }
     }
 
     return checksum;
@@ -115,4 +159,28 @@ void Packet::displayInfo() const {
         << "Sequence Number: " << this->header.sequenceNum << "\n"
         << "Data Size: " << this->header.dataSize << "\n"
         << "Checksum: " << this->pktChecksum << "\n";
+}
+
+unsigned int Packet::getPacketSize() const {
+    return MIN_PACKET_SIZE + this->header.dataSize;
+}
+
+bool Packet::serialize(char* buffer, const unsigned int size) const {
+    if (nullptr == buffer) {
+        log("packet.log", 1, "Failed to serialize packet");
+        return true;
+    }
+
+    // First, copy the header and increase the iterator
+    ::memcpy(buffer, &this->header, sizeof(this->header));
+    buffer += sizeof(this->header);
+
+    // Now copy the data field
+    ::memcpy(buffer, this->data, this->header.dataSize);
+    buffer += this->header.dataSize;
+
+    // Finally, append the checksum
+    ::memcpy(buffer, &this->pktChecksum, sizeof(this->pktChecksum));
+
+    return false;
 }

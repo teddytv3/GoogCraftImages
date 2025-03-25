@@ -19,12 +19,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Packet.h">
-          <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Socket.h">
-        <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -33,12 +39,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Packet.cpp">
-         <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Socket.cpp">
-        <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

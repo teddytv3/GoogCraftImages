@@ -24,19 +24,14 @@ struct TelemetryData {
     double fuel;
 };
 
+#pragma pack(push, 1)
 struct PacketHeader {
     ActionType actionID;
     PktType pktType;
     uint16_t sequenceNum;
     uint16_t dataSize;
 };
-
-union PacketData {
-    TelemetryData telemetry;
-    //std::vector<uint8_t> images;
-    //std::string googleEarthPhoto;
-};
-
+#pragma pack(pop)
 
 class Packet {
 private:
@@ -51,11 +46,27 @@ public:
     */
     Packet();
 
-    Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, uint8_t* pktData = nullptr);
+    Packet(ActionType id, PktType type, uint16_t seqNum, uint16_t dataSize, const uint8_t* pktData = nullptr);
 
     /* @brief Destructor. Free the data buffer if it's allocated
     */
     ~Packet();
+
+    // Getters
+    /* @brief Get a constant reference to the packet header object
+    *  @return  A constant reference to the packet header object
+    */
+    PacketHeader const& getPacketHeader() const;
+
+    /* @brief Get a constant pointer to the data buffer
+    *  @return  A constant pointer to the data buffer
+    */
+    const uint8_t* getData() const;
+
+    /* @brief Get a copy of the packet's checksum
+    *  @return  A copy of the packet's checksum
+    */
+    const uint8_t getChecksum() const;
     
     /* @brief Prepare a packet based on data within a buffer
     *  @param[in] newHeader The packet header as a data structure
@@ -65,12 +76,17 @@ public:
     */
     bool setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size);
 
+    /* @brief Turn a command packet into a response packet
+    *  @param[in] The packet type to send in response
+    */
+    void makeTelemetry(PktType response);
+
     /* @brief Copy a pointer to some data into this packet. Sets the data size, copies data, then calculates checksum.
     *  @param[in] buffer    The source data buffer to copy.
     *  @param[in] size      The number of bytes within buffer to copy.
     *  @return              True upon error, false otherwise
     */
-    bool copyData(uint8_t* buffer, uint16_t size);
+    bool copyData(const uint8_t* buffer, uint16_t size);
 
     /* @brief Calculate the checksum on the packet header and dynamically sized data field
     *  @return  The final calculated checksum of the packet
@@ -79,4 +95,17 @@ public:
 
 
     void displayInfo() const;
+
+    /* @brief Get the size of the full packet
+    *  @return	The size of the packet in bytes. Returns at least MIN_PACKET_SIZE
+    */
+    unsigned int getPacketSize() const;
+
+    /* @brief Serialize the packet into a buffer
+    *  @param[out] buffer   A pointer to the buffer that will be populated with the packet
+    *  @param[in] size      A value representing the number of bytes allocated and available within the buffer.
+    *  @return  True upon failure. False otherwise
+    */
+    bool serialize(char* buffer, const unsigned int size) const;
+
 };
