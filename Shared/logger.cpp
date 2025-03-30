@@ -18,7 +18,10 @@ namespace Shared {
 
 		// Get the %AppData% path
 		std::string path = getRootPath() + LOGS_DIR;
+
 		// Create the path if it does not yet exist
+		// True return value indicates that the path was newly created, false indicates it may have already existed.
+		// We intentionally want to ignore the return value, as the code will behave the same either way.
 		std::filesystem::create_directories(path);
 
 		std::string filePath = path + filename;	//Using a different file name to separate between Client and Server logs. They should still live in the same folder however.
