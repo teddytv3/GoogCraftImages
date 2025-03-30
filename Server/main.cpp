@@ -92,6 +92,27 @@ int main(int argc, char* argv[]) {
 					pktResponse = Shared::PktType::ACK;
 					break;
 
+				case Shared::ActionType::ACT_MESSAGE: {
+					pktResponse = Shared::PktType::ACK;
+					Shared::log("server.log", 0, "Received message from client");
+
+					// ALlocate a new buffer with room for a null terminator
+					char* msgBuffer = new char[gotPacket.getPacketHeader().dataSize + 1];
+
+					// Copy the custom message into the new buffer
+					::memcpy(msgBuffer, gotPacket.getData(), gotPacket.getPacketHeader().dataSize);
+
+					// Add a null terminator onto the end of the message.
+					msgBuffer[gotPacket.getPacketHeader().dataSize] = 0;
+
+					// Log the message
+					Shared::log("message.log", gotPacket.getPacketHeader().dataSize, msgBuffer);
+
+					// Free the memory
+					delete[] msgBuffer;
+					break;
+				}
+
 				case Shared::ActionType::ACT_UPLOAD:
 					Shared::log("server.log", 0, "Upload action received");
 					pktResponse = Shared::PktType::ACK;

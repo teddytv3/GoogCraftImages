@@ -134,10 +134,10 @@ namespace UI {
 		int msgReturn = Shared::sendCustomMessage(socket, args);
 
 		if (msgReturn == 0) {
-			result = "Successfully sent custom message";
+			result = "Successfully sent custom message\n";
 		}
 		else {
-			result = "Error sending custom message";
+			result = "Error sending custom message\n";
 		}
 
 		return result;

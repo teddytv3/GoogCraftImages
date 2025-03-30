@@ -90,7 +90,7 @@ namespace Shared {
 	int sendCustomMessage(Socket& socket, const std::vector<std::string>& message) {
 		int result = 0;
 		Shared::PacketHeader hdr;
-		hdr.actionID = Shared::ACT_UPLOAD;
+		hdr.actionID = Shared::ACT_MESSAGE;
 		hdr.pktType = Shared::ACTION;
 		hdr.sequenceNum = 0;
 		Shared::Packet pkt;
