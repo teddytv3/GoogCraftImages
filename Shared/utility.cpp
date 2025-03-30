@@ -34,4 +34,23 @@ namespace Shared {
 	std::string getCurrentPath() {
 		return std::filesystem::current_path().generic_string();
 	}
+
+	void DisplayReceivedFiles() {
+
+		std::string path = Shared::getRootPath();
+		path += FILES_DIR;
+
+		for (const auto& entry : std::filesystem::directory_iterator(path)) {
+			std::cout << entry.path() << std::endl;
+		}
+	}
+
+	void DisplayLogFiles() {
+		std::string path = Shared::getRootPath();
+		path += LOGS_DIR;
+
+		for (const auto& entry : std::filesystem::directory_iterator(path)) {
+			std::cout << entry.path() << std::endl;
+		}
+	}
 }

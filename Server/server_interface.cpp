@@ -3,30 +3,12 @@
 #include <defines.h>
 #include <iostream>
 #include <string>
+#include "utility.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
 namespace Server {
-	void DisplayReceivedFiles() {
-
-		std::string path = Shared::getRootPath();
-		path += FILES_DIR;
-
-		for (const auto& entry : fs::directory_iterator(path)) {
-			std::cout << entry.path() << std::endl;
-		}		
-	}
-
-	void DisplayLogFiles() {
-		std::string path = Shared::getRootPath();
-		path += LOGS_DIR;
-
-		for (const auto& entry : fs::directory_iterator(path)) {
-			std::cout << entry.path() << std::endl;
-		}		
-	}
-
 	void DisplayOptions() {
 		while (true) {
 			std::cout << "***************************" << std::endl;
@@ -42,10 +24,10 @@ namespace Server {
 
 			switch (input) {
 				case '1':
-					DisplayLogFiles();
+					Shared::DisplayLogFiles();
 					break;
 				case '2':
-					DisplayReceivedFiles();
+					Shared::DisplayReceivedFiles();
 					break;
 				default: {
 					std::cout << "Bad Input " << std::endl;

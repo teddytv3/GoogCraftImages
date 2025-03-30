@@ -12,4 +12,8 @@ namespace Shared {
 	*/
 	extern std::string getCurrentPath();
 
+	extern void DisplayReceivedFiles();
+
+	extern void DisplayLogFiles();
+
 }
