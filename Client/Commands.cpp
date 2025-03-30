@@ -88,7 +88,18 @@ namespace UI {
 	}
 
 	const std::string cmdMsg(Shared::Socket& socket, const std::vector<std::string>& args) {
-		return "";
+		std::string result = "";
+
+		int msgReturn = Shared::sendCustomMessage(socket, args);
+
+		if (msgReturn == 0) {
+			result = "Successfully sent custom message";
+		}
+		else {
+			result = "Error sending custom message";
+		}
+
+		return result;
 	}
 
 	const std::string cmdTelem(Shared::Socket& socket, const std::vector<std::string>& args) {

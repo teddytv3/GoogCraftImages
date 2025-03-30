@@ -83,4 +83,36 @@ namespace Shared {
 
 		return result;
 	}
+
+	int sendCustomMessage(Socket& socket, const std::vector<std::string>& message) {
+		int result = 0;
+		Shared::PacketHeader hdr;
+		hdr.actionID = Shared::ACT_UPLOAD;
+		hdr.pktType = Shared::ACTION;
+		hdr.sequenceNum = 0;
+		Shared::Packet pkt;
+
+		std::string data;
+
+		for (int i = 0; i < message.size(); i++) {
+			data += message[i];
+			if (i == message.size() - 1) {
+				break;
+			}
+			data += " ";
+		}
+
+		hdr.dataSize = data.length();
+		pkt.setPacket(hdr, data.c_str(), hdr.dataSize);
+
+		if (socket.send(pkt) < 0) {
+			Shared::log("stream.log", -1, "Failed to send custom message to server.");
+			result = -1;
+		}
+		else {
+			Shared::log("stream.log", 0, "Sent custom message packet.");
+		}
+
+		return result;
+	}
 }

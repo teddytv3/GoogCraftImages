@@ -9,4 +9,6 @@ namespace Shared {
 	*  @return				A status code. <0 if any packets failed to send. 0 otherwise.
 	*/
 	extern int streamOutFileOverSocket(Socket& socket, const std::string& filepath);
+
+	extern int sendCustomMessage(Socket& socket, const std::vector<std::string>& message);
 }
