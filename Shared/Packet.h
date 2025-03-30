@@ -10,7 +10,9 @@ namespace Shared {
         ACT_UPLOAD,
         ACT_DOWNLOAD,
         ACT_DELETE,
-        ACT_POSITION
+        ACT_POSITION,
+        ACT_MESSAGE,
+        ACT_TELEMETRY
     };
 
     enum PktType : uint8_t {
