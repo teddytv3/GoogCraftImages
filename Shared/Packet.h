@@ -75,7 +75,7 @@ namespace Shared {
         *  @param[in] size      The size of the buffer. The number of bytes to use.
         *  @return              True upon error, false otherwise
         */
-        bool setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size);
+        bool setPacket(PacketHeader const& newHeader, const char* buffer, unsigned int size);
 
         /* @brief Turn a command packet into a response packet
         *  @param[in] The packet type to send in response

@@ -12,10 +12,14 @@ namespace UI {
 		std::string commandBuffer = "";
 		std::ostringstream outputStream;
 
+		// Vector of arguments
+		std::vector<std::string> args;
+
 		while (true) {
 			// CLean reusable buffers
 			commandBuffer = "";
 			outputStream.str("");
+			args.clear();
 
 			// Draw the prompt
 			outputStream << "ClientUI @ " << Shared::getCurrentPath() << " > ";
@@ -25,8 +29,15 @@ namespace UI {
 			std::getline(std::cin, commandBuffer);
 			std::cin.clear();
 
+			// Split into vector
+			std::stringstream tmp(commandBuffer);
+			while (tmp >> commandBuffer) {
+				args.push_back(commandBuffer);
+			}
+
+
 			// Print the command output to the user
-			std::cout << parseCommand(client, commandBuffer);
+			std::cout << parseCommand(client, args);
 		}
 	}
 }
