@@ -109,11 +109,7 @@ namespace Shared {
 
     bool Packet::copyData(const char* buffer, unsigned short int size) {
         // Ensure that the buffer exists
-        if (buffer == nullptr) {
-            std::cerr << "Could not copy packet data. Buffer was null." << std::endl;
-            return true;
-        }
-        else {
+        if (buffer != nullptr) {
 
             // If data is already allocated, free it.
             if (this->data != nullptr) {

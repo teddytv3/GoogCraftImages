@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Socket.h"
 
 #define DisplaySentFiles DisplayReceivedFiles
 

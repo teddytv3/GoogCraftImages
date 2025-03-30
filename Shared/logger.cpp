@@ -12,7 +12,7 @@ namespace Shared {
 	 * @param filename This parameter is a string variable that contains the name of the file to write to. This is separated from the log folder to ensure client and server have separate files.
 	 * @param successFlag This parameter is a flag that indicates if a packet was sent/received successfully or not.
 	 */
-	void log(std::string filename, int8_t successFlag, std::string msg) {
+	void log(std::string filename, int32_t successFlag, std::string msg) {
 		std::ostringstream stream;
 		stream << std::chrono::system_clock::now().time_since_epoch().count() << ":	" << static_cast<int32_t>(successFlag) << " '" << msg << "'";
 

@@ -67,7 +67,7 @@ namespace Shared {
 		displayFiles(path);
 	}
 
-	extern std::string findFilePath(const std::string& filename) {
+	std::string findFilePath(const std::string& filename) {
 		std::string path = getRootPath();
 		
 		// Check logs dir
