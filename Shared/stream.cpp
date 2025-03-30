@@ -57,7 +57,7 @@ namespace Shared {
 					Shared::log("stream.log", result, "Failed to send upload sequence packet to server.");
 				}
 				else {
-					Shared::log("stream.log", hdr.sequenceNum, "Sent a sequence to the server.");
+					Shared::log("stream.log", hdr.dataSize, "Sent a sequence to the server.");
 				}
 
 				hdr.sequenceNum++;
@@ -75,6 +75,9 @@ namespace Shared {
 			else {
 				Shared::log("stream.log", 0, "Sent final sequence to the server.");
 			}
+
+			// Close the file
+			file.close();
 		}
 		else {
 			Shared::log("stream.log", -1, "File failed to open.");
