@@ -12,6 +12,7 @@ namespace Shared {
         ACT_DELETE,
         ACT_POSITION,
         ACT_MESSAGE,
+        ACT_INFO,
         ACT_TELEMETRY
     };
 

@@ -139,7 +139,69 @@ int main(int argc, char* argv[]) {
 					// ... Upload logic
 					// When the final upload packet is received... switch back to IDLE
 					break;
+				case Shared::ActionType::ACT_INFO: {
+					Shared::log("server.log", 0, "Info action received");
 
+					// Extract timestamp from the packet
+					long long clientTimestamp = 0;
+					memcpy(&clientTimestamp, gotPacket.getData(), sizeof(long long));
+
+					auto startTime = std::chrono::high_resolution_clock::now();
+
+					std::string serverInfo = "Server Info: Version 1.0.0, Uptime: 24h";
+
+					// Create the response packet with the server info
+					Shared::PacketHeader hdr;
+					hdr.actionID = Shared::ActionType::ACT_INFO;
+					hdr.pktType = Shared::PktType::ACK; // ACK response
+					hdr.sequenceNum = 0;
+					hdr.dataSize = serverInfo.length() + 1; // Include null terminator
+
+					Shared::Packet responsePkt;
+					responsePkt.setPacket(hdr, serverInfo.c_str(), hdr.dataSize);
+
+					// Send the response packet back to the client
+					if (client.send(responsePkt) < 0) {
+						Shared::log("server.log", -1, "Failed to send server response packet.");
+						break;
+					}
+
+					// Calculate the response time
+					auto endTime = std::chrono::high_resolution_clock::now();
+					double responseTime = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+
+					// Log the server response time
+					Shared::log("server.log", 0, "Response time: " + std::to_string(responseTime) + " ms");
+
+					pktResponse = Shared::PktType::ACK; // Set response type to ACK
+					break;
+				}
+				case Shared::ActionType::ACT_TELEMETRY: {
+					Shared::log("server.log", 0, "Telemetry action received");
+
+					// Extract telemetry data from the packet
+					std::string telemetryData = reinterpret_cast<const char*>(gotPacket.getData());
+
+					Shared::log("server.log", 0, "Received telemetry: " + telemetryData);
+
+
+					// Create an ACK response packet for telemetry
+					Shared::PacketHeader hdr;
+					hdr.actionID = Shared::ActionType::ACT_TELEMETRY;
+					hdr.pktType = Shared::PktType::ACK;
+					hdr.sequenceNum = 0;
+					hdr.dataSize = 0; // No data in the response packet
+
+					Shared::Packet responsePkt;
+					responsePkt.setPacket(hdr, nullptr, hdr.dataSize);
+
+					if (client.send(responsePkt) < 0) {
+						Shared::log("server.log", -1, "Failed to send telemetry response packet.");
+						break;
+					}
+					pktResponse = Shared::PktType::ACK;
+					break;
+				}
 				default:
 					Shared::log("server.log", 0, "Unknown action received!");
 					pktResponse = Shared::PktType::NACK;
