@@ -2,11 +2,16 @@
 #include "defines.h"
 #include "logger.h"
 #include "utility.h"
+#include "stream.h"
 
 #include <fstream>
 
 namespace UI {
 	const std::string parseCommand(Shared::Socket& socket, std::vector<std::string>& args) {
+		if (args.size() <= 0) {
+			return "";
+		}
+
 		std::string result;
 		std::string command = args[0];
 		// Remove the first element
@@ -54,69 +59,17 @@ namespace UI {
 	}
 
 	const std::string cmdPush(Shared::Socket& socket, const std::vector<std::string>& args) {
-		const std::string FILE_PATH = Shared::findFilePath(args[0]);
 		std::string result = "";
 
-		// Attempt to open the file 
-		std::ifstream file = std::ifstream(FILE_PATH, std::ios::in);
-		
-		// Ensure the file opens properly
-		if (!file.fail() && !file.bad()) {
-			// Sequence buffer for file data
-			char data[MAX_DATA_SIZE];
+		int streamReturn = Shared::streamOutFileOverSocket(socket, args[0]);
 
-			// Packet to be sent
-			Shared::PacketHeader hdr;
-			hdr.actionID = Shared::ACT_UPLOAD;
-			hdr.pktType = Shared::ACTION;
-			hdr.sequenceNum = 0;
-			Shared::Packet pkt;
-
-			// Send the initial packet with the filename as data
-			hdr.dataSize = args[0].length();
-			pkt.setPacket(hdr, args[0].c_str(), hdr.dataSize);
-
-			if (socket.send(pkt) < 0) {
-				Shared::log("client.log", -1, "Failed to send initial upload packet to server.");
-			}
-			else {
-				Shared::log("client.log", 0, "Sent initial upload packet.");	
-			}
-
-			// Increment sequence to indicate we are starting to send data
-			hdr.sequenceNum++;
-
-			// Send all file data to the server
-			do {
-				// Begin streaming file sequeneces
-				file.read(data, MAX_DATA_SIZE);
-
-				// Query the result
-				uint16_t bytes = static_cast<uint16_t>(file.gcount());
-
-				// Send a sequence packet to the server
-				hdr.dataSize = bytes;
-				pkt.setPacket(hdr, data, bytes);
-				if (socket.send(pkt) < 0) {
-					Shared::log("client.log", -1, "Failed to send upload sequence packet to server.");
-				}
-				else {
-					Shared::log("client.log", 0, "Sent a sequence to the server.");
-				}
-
-				hdr.sequenceNum++;
-
-			} while (false == file.eof() && false == file.fail());
-			
-			// Send final stream packet to the server
-			hdr.dataSize = 0;
-			pkt.setPacket(hdr, nullptr, 0);
-
+		if (streamReturn == 0) {
+			result = "Successfully sent file " + args[0] + " to the server!\n";
 		}
 		else {
-			result = "Error: Could not find file.";
+			result = "Error " + std::to_string(streamReturn) + " when sending sequences.\n";
 		}
-
+		
 		return result;
 	}
 
@@ -135,7 +88,18 @@ namespace UI {
 	}
 
 	const std::string cmdMsg(Shared::Socket& socket, const std::vector<std::string>& args) {
-		return "";
+		std::string result = "";
+
+		int msgReturn = Shared::sendCustomMessage(socket, args);
+
+		if (msgReturn == 0) {
+			result = "Successfully sent custom message";
+		}
+		else {
+			result = "Error sending custom message";
+		}
+
+		return result;
 	}
 
 	const std::string cmdTelem(Shared::Socket& socket, const std::vector<std::string>& args) {

@@ -4,5 +4,5 @@
 #include <fstream>
 
 namespace Shared {
-	extern void log(std::string filename, int8_t successFlag, std::string msg);
+	extern void log(std::string filename, int32_t successFlag, std::string msg);
 }
