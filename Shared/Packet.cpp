@@ -57,27 +57,24 @@ namespace Shared {
 
 
 
-    bool Packet::setPacket(PacketHeader const& newHeader, char* buffer, unsigned int size) {
+    bool Packet::setPacket(PacketHeader const& newHeader, const char* buffer, unsigned int size) {
         // Check for input errors
-        // Since buffer is the data + checksum, the minimum value for 'size' is FOOTER_SIZE
-        if (buffer == nullptr || size < FOOTER_SIZE) {
-            log("packet.log", -1, "setPacket received null buffer or low packet size");
+        // Includes the CRC
+        if (size == newHeader.dataSize + 1) {
+            if (buffer == nullptr) {
+                log("packet.log", -1, "Buffer was null when it was expected to contain CRC.");
+                return true;
+            }
+        }
+        else if (size != newHeader.dataSize) {
+            log("packet.log", -1, "Buffer size was invalid.");
             return true;
         }
+
 
         // Attempt to set the packet
         // At this point we know the packet has enough data to contain a header
         this->header = newHeader;
-
-        // CHeck to make sure there's enough bytes in the buffer for 'dataSize'
-        const uint32_t DATA_BYTES_FOUND = size - FOOTER_SIZE;
-
-        // If not enough bytes were received... return true for error
-        if (DATA_BYTES_FOUND < this->header.dataSize) {
-            log("packet.log", -2, "Could not set packet using buffer. Not enough data bytes provided.");
-            std::cerr << "Could not set packet using buffer. Not enough data bytes provided. Expected " << this->header.dataSize << " bytes but found " << DATA_BYTES_FOUND << std::endl;
-            return true;
-        }
 
         // Copy the packet data and set checksum
         if (this->copyData(buffer, this->header.dataSize)) {
