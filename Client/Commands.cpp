@@ -114,9 +114,9 @@ namespace UI {
 		Shared::log("client.log", 0, "Response time: " + std::to_string(responseTime) + " ms");
 
 		// Extract server response data
-		char serverMessage[Shared::MAX_DATA_SIZE];
-		memset(serverMessage, 0, Shared::MAX_DATA_SIZE);
-		memcpy(serverMessage, responsePkt.getData(), responsePkt.getHeader().dataSize);
+		char serverMessage[MAX_DATA_SIZE];
+		memset(serverMessage, 0, MAX_DATA_SIZE);
+		memcpy(serverMessage, responsePkt.getData(), responsePkt.getPacketHeader().dataSize);
 
 		// Return server message along with response time
 		return std::string(serverMessage) + "\nResponse Time: " + std::to_string(responseTime) + " ms\n";
