@@ -21,12 +21,18 @@
     <ClCompile Include="server_interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="serverStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="states.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="server_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="serverStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

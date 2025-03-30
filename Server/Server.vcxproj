@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="serverStream.cpp" />
     <ClCompile Include="server_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +141,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="serverStream.h" />
     <ClInclude Include="server_interface.h" />
     <ClInclude Include="states.h" />
   </ItemGroup>

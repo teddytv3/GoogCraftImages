@@ -6,6 +6,10 @@
 #include "logger.h"
 #include "server_interface.h"
 #include "states.h"
+#include "serverStream.h"
+
+#include "utility.h"
+#include <map>
 
 // Server Main
 int main(int argc, char* argv[]) {
@@ -38,6 +42,10 @@ int main(int argc, char* argv[]) {
 		state = Server::State::IDLE;
 		Shared::log("server.log", 0, "Transitioned to the IDLE state...");
 
+		// Buffer for dynamically allocated file sequences
+		std::vector<Server::SequenceContainer> sequences;
+		std::string uploadFilename = "";
+
 		// Command accept loop
 		while (!client.fail()) {
 			Shared::log("server.log", 0, "Waiting for a packet...");
@@ -57,6 +65,9 @@ int main(int argc, char* argv[]) {
 			// Prepare the packet response used in the response packet
 			// By default, it's nack. That way we know an ACK was explicitly set
 			Shared::PktType pktResponse = Shared::PktType::NACK;
+
+			// Get a reference to the packet header
+			const Shared::PacketHeader& HEADER = gotPacket.getPacketHeader();
 
 			// Evaluate the received action
 			switch (gotPacket.getPacketHeader().actionID) {
@@ -85,8 +96,24 @@ int main(int argc, char* argv[]) {
 					Shared::log("server.log", 0, "Upload action received");
 					pktResponse = Shared::PktType::ACK;
 
-					state = Server::State::READING;
-					Shared::log("server.log", 0, "Transitioned to the READING state.");
+
+					// IF this is the first upload packet in the sequence...
+					if (state != Server::State::READING) {
+						if (Server::handleUploadPacketOne(state, gotPacket, uploadFilename)) {
+							pktResponse = Shared::PktType::NACK;
+						}
+					}
+					// Following data packets and final packet...
+					else if (HEADER.sequenceNum > 0 && HEADER.dataSize > 0) {
+						if (Server::handleUploadPacketData(gotPacket, sequences)) {
+							pktResponse = Shared::PktType::NACK;
+						}
+					}
+					else if (HEADER.sequenceNum > 0) {
+						if (Server::handleUploadPacketFinal(gotPacket, sequences, state, uploadFilename)) {
+							pktResponse = Shared::PktType::NACK;
+						}
+					}
 
 					// ... Upload logic
 					// When the final upload packet is received... switch back to IDLE
@@ -104,6 +131,15 @@ int main(int argc, char* argv[]) {
 			// Now send the packet back to the client
 			Shared::log("server.log", client.send(gotPacket), "Sent response packet back to client.");
 		}
+
+		// Clear the sequences vector
+		for (int i = 0; i < sequences.size(); i++) {
+			// Free up any allocated sequences
+			if (sequences[i].dataPtr != nullptr) {
+				delete[] sequences[i].dataPtr;
+			}
+		}
+		sequences.clear();
 	}
 
 	Shared::Socket::cleanup();
