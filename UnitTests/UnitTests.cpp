@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 
+#include "../Client/Commands.h"
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests
@@ -21,6 +23,7 @@ namespace UnitTests
 
 		TEST_METHOD(UPLOAD_001)
 		{
+			UI::cmdHelp();
 			Assert::AreEqual(1, 1);
 		}
 
