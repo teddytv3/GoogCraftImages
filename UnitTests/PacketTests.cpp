@@ -53,7 +53,7 @@ namespace UnitTests
 			Assert::AreEqual(packet.getPacketHeader().dataSize, static_cast<uint16_t>(0));
 		}
 
-		TEST_METHOD(PACKET_004_HEADER)
+		TEST_METHOD(PACKET_005)
 		{
 			// Initial Data
 			const char* INPUT_DATA = nullptr;
@@ -88,7 +88,7 @@ namespace UnitTests
 			Assert::AreEqual(packet.getChecksum(), EXPECTED_HEADER_CC);
 		}
 
-		TEST_METHOD(PACKET_004_DATA)
+		TEST_METHOD(PACKET_004)
 		{
 			// Initial Data
 			const char INPUT_DATA[] = { 1, 3, 5, 7, 2 };
@@ -129,7 +129,7 @@ namespace UnitTests
 			Assert::AreEqual(packet.getChecksum(), EXPECTED_HEADER_CC);
 		}
 
-		TEST_METHOD(PACKET_005)
+		TEST_METHOD(PACKET_006)
 		{
 			// Initial Data
 			const char INPUT_DATA[] = { 1, 3, 5, 2, 99, 4, 6, 1, 34 };
@@ -146,7 +146,7 @@ namespace UnitTests
 			Assert::AreEqual(packet.getPacketSize(), static_cast<unsigned int>(HEADER_SIZE + INPUT_SIZE + FOOTER_SIZE));
 		}
 
-		TEST_METHOD(PACKET_006)
+		TEST_METHOD(PACKET_007)
 		{
 			// Initial Data
 			const char INPUT_DATA[] = { 1, 55, 5, 2, 99, 4, 6, 1, 34 };
@@ -176,7 +176,7 @@ namespace UnitTests
 			Assert::AreEqual(static_cast<uint8_t>(*serializeBuffer), packet.getChecksum());
 		}
 
-		TEST_METHOD(PACKET_007)
+		TEST_METHOD(PACKET_008)
 		{
 			// Initial Data
 			const char INPUT_DATA[] = { 1, 55, 5, 2, 99, 4, 6, 1, 34 };
@@ -198,7 +198,7 @@ namespace UnitTests
 			Assert::AreEqual(serialRes, true);
 		}
 
-		TEST_METHOD(PACKET_008)
+		TEST_METHOD(PACKET_009)
 		{
 			// Initial Data
 			const char INPUT_DATA[] = { 1, 55, 5, 2, 99, 4, 6, 1, 34 };
@@ -234,7 +234,7 @@ namespace UnitTests
 			Assert::AreEqual(EXPECTED_TELEM_CHECKSUM, packet.getChecksum());
 		}
 
-		TEST_METHOD(PACKET_009)
+		TEST_METHOD(PACKET_010)
 		{
 			// Initial Data
 			const char* INPUT_DATA = nullptr;
@@ -257,7 +257,7 @@ namespace UnitTests
 			Assert::AreEqual(::memcmp(&HEADER, &packet.getPacketHeader(), sizeof(Shared::PacketHeader)), 0);
 		}
 
-		TEST_METHOD(PACKET_010)
+		TEST_METHOD(PACKET_011)
 		{
 			// Initial Data
 			const char INPUT_DATA[] = { 1, 55, 5, 2, 99, 4, 6, 1, 34 };
@@ -286,7 +286,7 @@ namespace UnitTests
 			Assert::AreEqual(::memcmp(INPUT_DATA, packet.getData(), INPUT_SIZE), 0);
 		}
 
-		TEST_METHOD(PACKET_011)
+		TEST_METHOD(PACKET_012)
 		{
 			// Initial Data - Includes checksum
 			const uint8_t EXPECTED_CHECKSUM = 0xFF;
